@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Reminder } from "@/types/Reminder";
 import { FaCircleCheck, FaUpRightAndDownLeftFromCenter } from "react-icons/fa6";
 import { FaTrashAlt } from "react-icons/fa";
@@ -10,20 +10,16 @@ interface ReminderCardProps {
 };
 
 const ReminderCard = ({ refreshKey }: ReminderCardProps) => {
-  const [initialData, setInitialData] = useState<Reminder[]>([
+  const initialData: Reminder[] = [
     { id: 1, pet: "Browny", category: "General", title: "Morning Walk", notes: "", startDate: "", reminderTime: "12:06", frequency: "Everyday", status: "Completed", streak: 0 },
     { id: 2, pet: "Kitty", category: "Breakfast", title: "Breakfast", notes: "", startDate: "", reminderTime: "12:06", frequency: "Everyday", status: "Completed", streak: 0 },
     { id: 3, pet: "Browny", category: "Lifestyle", title: "Evening Walk", notes: "", startDate: "", reminderTime: "12:06", frequency: "Everyday", status: "Pending", streak: 0 },
     { id: 4, pet: "Simba", category: "General", title: "Morning Walk", notes: "", startDate: "", reminderTime: "12:06", frequency: "Everyday", status: "Pending", streak: 0 }
-  ]);
+  ];
   const [currentData, setCurrentData] = useState<Reminder[]>();
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [refreshKey]);
-
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     const localData = localStorage.getItem("PetReminderData");
 
     if (localData == null) {
@@ -33,7 +29,11 @@ const ReminderCard = ({ refreshKey }: ReminderCardProps) => {
       const parsedData: Reminder[] = JSON.parse(localData);
       setCurrentData(parsedData);
     }
-  };
+  }, [initialData]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, refreshKey]);
 
   const handleEditSave = (updatedReminder: Reminder) => {
     const updatedList = currentData?.map(item =>
